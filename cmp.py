@@ -67,11 +67,21 @@ class cmp:
   def __rmul__(self, a, b=None):
     return self.__mul__(a, b)
 
-  def __truediv__(self, a):
+  def __truediv__(self, a, b=None):
     if isinstance(a, cmp):
-      raise TypeError("can only divide by real numbers")
+      return cmp((self.a * a.a + self.b * a.b) / (a.a ** 2 + a.b ** 2), (self.b * a.a - self.a * a.b) / (a.a ** 2 + a.b ** 2))
+    elif b is not None:
+      return self.__truediv__(cmp(a, b))
     else:
       return cmp(self.a / a, self.b / a)
+    
+  def __rtruediv__(self, a, b=None):
+    if isinstance(a, cmp):
+      return cmp((a.a * self.a + a.b * self.b) / (self.a ** 2 + self.b ** 2), (a.b * self.a - a.a * self.b) / (self.a ** 2 + self.b ** 2))
+    elif b is not None:
+      return self.__rtruediv__(cmp(a, b))
+    else:
+      return self.__rtruediv__(cmp(a, 0))
 
   def __pow__(self, power):
     r = math.sqrt(self.a * self.a + self.b * self.b)
@@ -80,10 +90,16 @@ class cmp:
     except ZeroDivisionError:
       theta = (1 if self.b > 0 else -1) * math.pi / 2
 
-    return r**power * self.exp(cmp(0, 1) * power * theta)
+    if isinstance(power, cmp):
+      return math.e ** cmp(power.a * math.log(r) - power.b * theta, power.b * math.log(r) + power.a * theta)
+    else:
+      return r ** power * cmp.cmpexp(power * theta)
 
-  def __rpow__(self, power):
-    return self.__pow__(power)
+  def __rpow__(self, base):
+    if base <= 0:
+      return cmp(0, 0)
+    else:
+      return base ** self.a * cmp.cmpexp(self.b * math.log(base))
 
   def __iadd__(self, a, b=None):
     if isinstance(a, cmp):
@@ -103,11 +119,11 @@ class cmp:
     else:
       return self * cmp(a, b)
 
-  def __idiv__(self, a):
-    return self / a
+  def __idiv__(self, dividend):
+    return self / dividend
 
   def __ipow__(self, power):
-    return self**power
+    return self ** power
 
   def __neg__(self):
     return cmp(-self.a, -self.b)
@@ -117,16 +133,12 @@ class cmp:
 
   def __invert__(self):
     return cmp(self.a, -self.b)
+  
+  def __eq__(self, a, b=None):
+    if isinstance(a, cmp):
+      return self.a == a.a and self.b == a.b
+    else:
+      return self.a == a and self.b == b
 
   def __str__(self):
     return f'{self.a} + {self.b}i'
-
-
-print("[", end="")
-
-for i in range(1000):
-  theta = i * math.pi / 500
-  x, y = math.cos(theta), math.sin(theta)
-  print(f'({theta}, {cmp.angle(x, y)})')
-
-print("]")
