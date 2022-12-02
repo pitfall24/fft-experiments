@@ -19,7 +19,7 @@ def FFT(P):
   ye, yo = FFT(Pe), FFT(Po)
 
   y = [0] * n
-  
+
   for i in range(n // 2):
     y[i] = ye[i] + w ** i * yo[i]
     y[i + n // 2] = ye[i] - w ** i * yo[i]
@@ -37,7 +37,7 @@ def IFFT(P):
     P += [(0, 0) for _ in range(2 ** ceil(log(n, 2)) - n)]
     n = 2 ** ceil(log(n, 2))
 
-  w = cmp.cmpexp(-2 * pi / n) / n
+  w = cmp.cmpexp(-2 * pi / n)
 
   Pe, Po = P[::2], P[1::2]
   ye, yo = IFFT(Pe), IFFT(Po)
@@ -51,8 +51,8 @@ def IFFT(P):
   return y
 
 
-a = FFT([0, 1, 2])
-b = IFFT([i for i in a])
+a = FFT([0, 1, 2, 3])
+b = IFFT([i / 4 for i in a])
 
 print(', '.join([f'({str(i)})' for i in a]))
 print(', '.join([f'({str(i)})' for i in b]))

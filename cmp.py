@@ -6,10 +6,10 @@ class cmp:
       self.a = a
       self.b = b
     else:
-      try:
+      if isinstance(a, cmp):
         self.a = a.a
         self.b = a.b
-      except AttributeError:
+      else:
         self.a = a
         self.b = 0
 
@@ -91,7 +91,7 @@ class cmp:
       theta = (1 if self.b > 0 else -1) * math.pi / 2
 
     if isinstance(power, cmp):
-      return math.e ** cmp(power.a * math.log(r) - power.b * theta, power.b * math.log(r) + power.a * theta)
+      return cmp.cmpexp(power.a * math.log(r) - power.b * theta, power.b * math.log(r) + power.a * theta)
     else:
       return r ** power * cmp.cmpexp(power * theta)
 
